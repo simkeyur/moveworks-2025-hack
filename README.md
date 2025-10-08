@@ -78,71 +78,8 @@ The Copilot validates details against Workday, creates the Job Change, surfaces 
 
 ---
 
-## 6-hour build plan
-
-**Prereqs before 10:15 am**
-
-* ISU credentials and OAuth client ready for Workday. Approvals require a User-Based Security Group added to the approval step. ([Moveworks][6])
-* One test worker, one target org, two job profiles, and a simple approval flow.
-
-**10:15 - 11:00 - Scaffold the conversation**
-
-* Intent: “transfer X to role Y on date Z and open a backfill.”
-* Short form for any missing fields.
-* Load a small static map of {label -> Workday id} to avoid building selectors.
-
-**11:00 - 12:00 - Wire Workday Knowledge**
-
-* Connect Workday Knowledge and verify Q&A in chat for transfer policy and benefits. This proves your bot is live and useful while you wire writes. ([Moveworks][1])
-
-**12:00 - 1:00 - Add Approvals**
-
-* Connect Workday Approvals and confirm your test approver can see and act on inbox items in chat. Configure approval mirroring settings. ([Moveworks][2])
-
-**1:00 - 2:30 - Job Change via HTTP**
-
-* HTTP connector call: Create Job Change for the worker with reason, effectiveDate, new org and job profile. Store businessProcessId and inboxTaskId. ([Moveworks][4])
-* Post a status card with Approve and Deny buttons tied to the inboxTaskId.
-
-**2:30 - 3:15 - Approval callback**
-
-* On Approve, call the Workday approval endpoint and update the status card to Approved. ([Moveworks][2])
-
-**3:15 - 4:15 - HR Case for backfill tracking**
-
-* Connect Workday HR Cases. Create a case with the moved worker’s previous position details and link it back in chat. ([Moveworks][3])
-
-**4:15 - 5:30 - Resilience and polish**
-
-* Add retries, error messages, and a “Refresh status” button that re-hydrates from stored state.
-* Validate Knowledge answers for top 3 policy questions.
-
-**5:30 - 6:00 - Dry run and screenshots**
-
-* Show the full thread: request -> confirmation -> Job Change created -> Approve in chat -> HR Case opened -> policy answers.
-
----
-
-## Minimal payloads you can adapt
-
 * **Create Job Change** - via HTTP connector to your Workday REST endpoint.
   `workerId, jobChangeReasonId, effectiveDate, supervisoryOrgId, jobProfileId, locationId, comments` - keep fields minimal for the demo. ([Moveworks][4])
 * **Approve inbox task** - call the Workday approval action with `inboxTaskId` and `action=APPROVE`. ([Moveworks][2])
 * **Open HR Case** - submit a case with summary, workerId, prior position, and target org so HR can post the requisition and coordinate comp. ([Moveworks][3])
 
----
-
-## Why this is hackathon-worthy
-
-* It delivers a high-impact, end-to-end HR change in one chat thread using multiple Workday connectors that Moveworks supports today. ([Moveworks][5])
-* The in-chat approval is a clear wow moment for judges and requires limited UI work. ([Moveworks][2])
-* The Knowledge connector ensures useful answers even if a write call fails, so your demo is resilient. ([Moveworks][1])
-
-If you want, I can generate the exact HTTP connector request templates and a compact checklist you can paste into your runbook so your team can execute step by step during the build window.
-
-[1]: https://help.moveworks.com/docs/content-integration-workday?utm_source=chatgpt.com "Workday"
-[2]: https://help.moveworks.com/docs/enterprise-approvals?utm_source=chatgpt.com "Approvals Queue - Moveworks"
-[3]: https://help.moveworks.com/docs/workday-access-requirements-cases?utm_source=chatgpt.com "Workday Access Requirements - HR Cases - help.moveworks.com"
-[4]: https://help.moveworks.com/docs/http-connectors?utm_source=chatgpt.com "HTTP Connectors - help.moveworks.com"
-[5]: https://www.moveworks.com/us/en/platform/integrations/workday?utm_source=chatgpt.com "Workday Integrations: Automate HR Processes with Moveworks AI"
-[6]: https://help.moveworks.com/docs/workday-access-requirements?utm_source=chatgpt.com "Workday Access Requirements - Approvals - Moveworks"
